@@ -349,13 +349,10 @@ app.patch('/api/skills/:id', async (req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-initDb()
-  .then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🐾 Dex Trainer draait op http://0.0.0.0:${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('Database initialisatie mislukt:', err);
-    process.exit(1);
-  });
+// Listen immediately so Railway's health check passes, then init DB
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🐾 Dex Trainer draait op http://0.0.0.0:${PORT}`);
+  initDb()
+    .then(() => console.log('✅ Database klaar'))
+    .catch(err => console.error('❌ Database fout:', err.message));
+});
