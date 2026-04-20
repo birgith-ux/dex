@@ -1,0 +1,5 @@
+node_modules/
+.env
+dex.db
+dex.db-shm
+dex.db-wal
