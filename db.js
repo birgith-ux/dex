@@ -1,10 +1,10 @@
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 
 const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'dex.db');
-const db = new Database(DB_PATH);
+const db = new DatabaseSync(DB_PATH);
 
-db.pragma('journal_mode = WAL');
+db.exec("PRAGMA journal_mode = WAL");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS training_logs (
@@ -64,7 +64,7 @@ if (skillCount.count === 0) {
     ["Verlenging commando's", 5, 'not_started'],
     ["Afstandscommando's", 5, 'not_started'],
     ['Advanced looptraining', 6, 'not_started'],
-    ['Complexere commando\'s', 6, 'not_started'],
+    ["Complexere commando's", 6, 'not_started'],
     ['Tricks (geavanceerd)', 6, 'not_started'],
     ['Gevorderde gehoorzaamheid', 7, 'not_started'],
     ['Sport & activiteiten', 7, 'not_started'],
