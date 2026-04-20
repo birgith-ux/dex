@@ -337,6 +337,6 @@ app.patch('/api/skills/:id', (req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
-  console.log(`🐾 Dex Trainer draait op http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🐾 Dex Trainer draait op http://0.0.0.0:${PORT}`);
 });
