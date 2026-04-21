@@ -121,13 +121,22 @@ function getPhaseProgress(weeks, phase) {
   return Math.min(100, Math.round((elapsed / total) * 100));
 }
 
+function dateInAmsterdam(offsetDays = 0) {
+  const d = new Date(Date.now() + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(d);
+}
+
 function todayString() {
-  return new Date().toISOString().slice(0, 10);
+  return dateInAmsterdam(0);
+}
+
+function yesterdayString() {
+  return dateInAmsterdam(-1);
 }
 
 // ─── Claude API ───────────────────────────────────────────────────────────────
 
-async function generateWithClaude(ageWeeks, phase, masteredSkills, strugglingSkills) {
+async function generateWithClaude(ageWeeks, phase, masteredSkills, strugglingSkills, yesterdayLogs = []) {
   if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'your_key_here') {
     return FALLBACK_EXERCISES;
   }
@@ -136,6 +145,20 @@ async function generateWithClaude(ageWeeks, phase, masteredSkills, strugglingSki
 
   const systemPrompt = `Jij bent een expert hondentrainer gespecialiseerd in positieve bekrachtiging voor labradoodles. Genereer een dagelijks puppytrainingsplan in het Nederlands. Geef ALLEEN geldige JSON terug, geen tekst, geen uitleg, geen markdown. De JSON moet een array zijn van precies 3 oefeningen.`;
 
+  let yesterdaySection = '';
+  if (yesterdayLogs.length > 0) {
+    const allWentWell = yesterdayLogs.every(l => l.result === 'goed');
+    const difficultExercises = yesterdayLogs.filter(l => l.result === 'lastig');
+
+    yesterdaySection = `\nResultaten van gisteren:\n${yesterdayLogs.map(l => `- ${l.exercise_name}: ${l.result === 'goed' ? '✓ goed gegaan' : '✗ lastig'}`).join('\n')}\n`;
+
+    if (allWentWell) {
+      yesterdaySection += '\nAlle oefeningen van gisteren gingen goed — genereer NIEUWE oefeningen of verhoog het niveau. Herhaal GEEN van de oefeningen van gisteren. Laat "herhaling_reden" op null staan.';
+    } else if (difficultExercises.length > 0) {
+      yesterdaySection += `\nDe volgende oefeningen waren lastig en moeten herhaald worden: ${difficultExercises.map(l => l.exercise_name).join(', ')}. Neem deze op in het plan van vandaag en vul "herhaling_reden" in met een korte uitleg waarom herhaling nodig is.`;
+    }
+  }
+
   const userPrompt = `Genereer een trainingsplan voor Dex, een labradoodle pup van ${ageWeeks} weken oud.
 Huidige fase: Fase ${phase.id} — ${phase.naam}
 Wat er nu speelt: ${phase.wat_er_gebeurt}
@@ -143,7 +166,7 @@ Aandachtspunten: ${phase.aandachtspunten}
 
 ${masteredSkills.length > 0 ? `Commando's die Dex al beheerst: ${masteredSkills.join(', ')}` : ''}
 ${strugglingSkills.length > 0 ? `Punten waar Dex moeite mee heeft: ${strugglingSkills.join(', ')}` : ''}
-
+${yesterdaySection}
 Geef ALLEEN een JSON array terug van exact 3 oefeningen, elk met dit formaat:
 [
   {
@@ -190,10 +213,18 @@ app.get('/api/training/today', async (req, res) => {
 
     const { weeks } = getDexAge();
     const phase = getCurrentPhase(weeks);
-    const { rows: masteredRows }   = await pool.query("SELECT name FROM skills WHERE status = 'mastered'");
-    const { rows: strugglingRows } = await pool.query("SELECT name FROM skills WHERE status = 'struggling'");
+    const [{ rows: masteredRows }, { rows: strugglingRows }, { rows: yesterdayLogs }] = await Promise.all([
+      pool.query("SELECT name FROM skills WHERE status = 'mastered'"),
+      pool.query("SELECT name FROM skills WHERE status = 'struggling'"),
+      pool.query('SELECT exercise_name, result, notes FROM training_logs WHERE date = $1', [yesterdayString()]),
+    ]);
 
-    const exercises = await generateWithClaude(weeks, phase, masteredRows.map(r => r.name), strugglingRows.map(r => r.name));
+    const exercises = await generateWithClaude(
+      weeks, phase,
+      masteredRows.map(r => r.name),
+      strugglingRows.map(r => r.name),
+      yesterdayLogs
+    );
 
     await pool.query(
       'INSERT INTO daily_plans (date, plan_json) VALUES ($1, $2) ON CONFLICT (date) DO UPDATE SET plan_json = EXCLUDED.plan_json',
@@ -216,10 +247,18 @@ app.post('/api/training/generate', async (req, res) => {
 
     const { weeks } = getDexAge();
     const phase = getCurrentPhase(weeks);
-    const { rows: masteredRows }   = await pool.query("SELECT name FROM skills WHERE status = 'mastered'");
-    const { rows: strugglingRows } = await pool.query("SELECT name FROM skills WHERE status = 'struggling'");
+    const [{ rows: masteredRows }, { rows: strugglingRows }, { rows: yesterdayLogs }] = await Promise.all([
+      pool.query("SELECT name FROM skills WHERE status = 'mastered'"),
+      pool.query("SELECT name FROM skills WHERE status = 'struggling'"),
+      pool.query('SELECT exercise_name, result, notes FROM training_logs WHERE date = $1', [yesterdayString()]),
+    ]);
 
-    const exercises = await generateWithClaude(weeks, phase, masteredRows.map(r => r.name), strugglingRows.map(r => r.name));
+    const exercises = await generateWithClaude(
+      weeks, phase,
+      masteredRows.map(r => r.name),
+      strugglingRows.map(r => r.name),
+      yesterdayLogs
+    );
 
     await pool.query('INSERT INTO daily_plans (date, plan_json) VALUES ($1, $2)', [today, JSON.stringify(exercises)]);
 
