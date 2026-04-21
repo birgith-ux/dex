@@ -87,11 +87,31 @@ const PHASES = [
   },
 ];
 
-const FALLBACK_EXERCISES = [
-  { naam: 'Zit', emoji: '🎯', doel: 'Basiscommando beheersen', stappen: ['Neem een snackje in je hand en hou het boven Dex zijn neus', 'Beweeg je hand langzaam naar achteren — zijn kont gaat automatisch naar beneden', 'Zodra hij zit: "Zit!" zeggen en meteen belonen', 'Herhaal 5× en stop dan'], duur_minuten: 3, beloning: 'Klein stukje kip of kibble', tip: 'Houd sessies kort en vrolijk — succes is alles!', herhaling_reden: null },
+const FALLBACK_POOL = [
+  { naam: 'Zit', emoji: '🎯', doel: 'Basiscommando beheersen', stappen: ['Neem een snackje in je hand en hou het boven Dex zijn neus', 'Beweeg je hand langzaam naar achteren — zijn kont gaat automatisch naar beneden', 'Zodra hij zit: zeg "Zit!" en beloon meteen', 'Herhaal 5× en stop dan'], duur_minuten: 3, beloning: 'Klein stukje kip of kibble', tip: 'Houd sessies kort en vrolijk — succes is alles!', herhaling_reden: null },
   { naam: 'Naam herkennen', emoji: '👂', doel: 'Reageren op naam', stappen: ['Ga op Dex zijn niveau zitten', 'Zeg rustig "Dex!" één keer', 'Zodra hij je aankijkt: YES! en belonen', 'Doe dit op 5 verschillende momenten', 'Probeer ook met lichte afleiding'], duur_minuten: 4, beloning: 'Heel veel lof + stukje snack', tip: 'Nooit zijn naam gebruiken voor iets negatiefs', herhaling_reden: null },
-  { naam: 'Alleen zijn (intro)', emoji: '🏠', doel: 'Kort alleen zijn oefenen', stappen: ['Loop rustig de kamer uit, zonder theater', 'Wacht 10 seconden buiten de deur', 'Kom rustig terug — geen overdreven begroeting', 'Bouw op naar 30 seconden, dan 1 minuut', 'Stop zodra hij onrustig wordt'], duur_minuten: 5, beloning: 'Rustige aai als je terugkomt', tip: 'Rustig wegaan = rustig terugkomen. Geen drama in beide richtingen.', herhaling_reden: null },
+  { naam: 'Alleen zijn (intro)', emoji: '🏠', doel: 'Kort alleen zijn oefenen', stappen: ['Loop rustig de kamer uit, zonder theater', 'Wacht 10 seconden buiten de deur', 'Kom rustig terug — geen overdreven begroeting', 'Bouw op naar 30 seconden, dan 1 minuut', 'Stop zodra hij onrustig wordt'], duur_minuten: 5, beloning: 'Rustige aai als je terugkomt', tip: 'Rustig wegaan = rustig terugkomen. Geen drama.', herhaling_reden: null },
+  { naam: 'Af (liggen)', emoji: '⬇️', doel: 'Ligcommando leren', stappen: ['Begin met Dex in zit-positie', 'Hou snack voor zijn neus en beweeg langzaam naar de grond', 'Wacht tot hij volledig ligt — geef dan "Af!" en beloon', 'Herhaal 5×', 'Eindig met een commando dat hij al kent'], duur_minuten: 4, beloning: 'Jackpot: 3 kleine snackjes!', tip: 'Als hij niet meewerkt, stop dan — kom later terug', herhaling_reden: null },
+  { naam: 'Poot geven', emoji: '🤝', doel: 'Vriendelijk contact oefenen', stappen: ['Vraag Dex om te zitten', 'Hou je handpalm open voor zijn poot', 'Zodra hij zijn poot licht optilt: "Poot!" zeggen en belonen', 'Herhaal met geduld — forceer nooit', 'Eindig na 5 successen'], duur_minuten: 3, beloning: 'Veel enthousiasme + snack', tip: 'Kies een moment waarop hij rustig is', herhaling_reden: null },
+  { naam: 'Blijf', emoji: '✋', doel: 'Wachten op commando leren', stappen: ['Laat Dex zitten', 'Zeg rustig "Blijf" en doe één stap achteruit', 'Wacht 3 seconden, stap terug en beloon', 'Bouw langzaam op: verder weg, langer wachten', 'Stop voor hij ongeduldig wordt'], duur_minuten: 4, beloning: 'Grote beloning bij succes', tip: 'Altijd terugkomen naar Dex om te belonen, niet roepen', herhaling_reden: null },
+  { naam: 'Plek', emoji: '🛏️', doel: 'Eigen plek leren kennen', stappen: ['Leg Dex zijn mandje of kleedje neer', 'Gooi een snack op de plek — zeg "Plek!" als hij erop stapt', 'Herhaal totdat hij er op afloopt bij het woord', 'Bouw op: hij moet er ook blijven liggen', 'Altijd positief afsluiten'], duur_minuten: 5, beloning: 'Snack + rustige aai op zijn plek', tip: 'Plek = veilige plek, nooit gebruiken als straf', herhaling_reden: null },
+  { naam: 'Socialisatie loopje', emoji: '🚶', doel: 'Nieuwe omgeving verkennen', stappen: ['Neem Dex mee naar een rustige plek buiten', 'Laat hem de omgeving verkennen op zijn eigen tempo', 'Beloon kalm gedrag bij nieuwe prikkels', 'Forceer nooit contact met iets wat hem schrikt', 'Hou het bij 10 minuten'], duur_minuten: 10, beloning: 'Rustige aandacht en lof', tip: 'Zijn tempo is leidend — jij bent zijn veilige basis', herhaling_reden: null },
+  { naam: 'Los', emoji: '🎾', doel: 'Loslaten op commando', stappen: ['Speel met Dex met een stuk speelgoed', 'Als hij het in zijn bek heeft: houd een snack bij zijn neus', 'Zodra hij loslaat zeg je "Los!" en geef je de snack', 'Geef het speelgoed daarna gewoon terug', 'Herhaal 4× en stop het spel positief'], duur_minuten: 4, beloning: 'Snack + doorgaan met spelen', tip: '"Los" moet nooit het einde van het spel betekenen', herhaling_reden: null },
+  { naam: 'Komen op roep', emoji: '🏃', doel: 'Terugkomen als je roept', stappen: ['Ga op een paar meter afstand van Dex staan', 'Roep enthousiast "Dex, kom!"', 'Zodra hij bij je is: grote feest + snack', 'Doe dit nooit als je iets vervelends gaat doen', 'Herhaal 5× op verschillende plekken'], duur_minuten: 5, beloning: 'Grootste beloning van de sessie', tip: 'Komen op roep = altijd een feestje, nooit iets saaais', herhaling_reden: null },
 ];
+
+function getFallbackExercises() {
+  // Pick 3 different exercises each day based on date so it varies
+  const seed = parseInt(todayString().replace(/-/g, ''), 10);
+  const len = FALLBACK_POOL.length;
+  const i1 = seed % len;
+  const i2 = (seed + 3) % len;
+  const i3 = (seed + 6) % len;
+  // Ensure no duplicates
+  const indices = [...new Set([i1, i2, i3])];
+  while (indices.length < 3) indices.push((indices[indices.length - 1] + 1) % len);
+  return indices.slice(0, 3).map(i => FALLBACK_POOL[i]);
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -128,9 +148,11 @@ function todayString() {
 // ─── Claude API ───────────────────────────────────────────────────────────────
 
 async function generateWithClaude(ageWeeks, phase, masteredSkills, strugglingSkills) {
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'your_key_here') {
-    return FALLBACK_EXERCISES;
+  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.trim() === 'your_key_here') {
+    console.log('⚠️  Geen API key — fallback oefeningen gebruikt');
+    return getFallbackExercises();
   }
+  console.log('🤖 Claude API aanroepen voor trainingsplan...');
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -205,7 +227,7 @@ app.get('/api/training/today', async (req, res) => {
   } catch (err) {
     console.error('Training generation error:', err);
     const { rows: logs } = await pool.query('SELECT * FROM training_logs WHERE date = $1', [today]).catch(() => ({ rows: [] }));
-    res.json({ exercises: FALLBACK_EXERCISES, date: today, cached: false, logs, fallback: true });
+    res.json({ exercises: getFallbackExercises(), date: today, cached: false, logs, fallback: true });
   }
 });
 
